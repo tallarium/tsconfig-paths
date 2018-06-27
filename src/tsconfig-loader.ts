@@ -1,6 +1,5 @@
 import * as path from "path";
 import * as fs from "fs";
-import * as deepmerge from "deepmerge";
 import * as StripJsonComments from "strip-json-comments";
 // tslint:disable-next-line:no-require-imports
 import StripBom = require("strip-bom");
@@ -141,7 +140,16 @@ export function loadTsconfig(
       );
     }
 
-    return deepmerge(base, config);
+    return mergeTsconfig(base, config);
   }
   return config;
+}
+
+function mergeTsconfig(base: Tsconfig, _config: Tsconfig): Tsconfig {
+  const config = { ..._config };
+  const newCompilerOptions = config.compilerOptions;
+  delete config.compilerOptions;
+  const ret = { ...base, ...config };
+  ret.compilerOptions = { ...base.compilerOptions, ...newCompilerOptions };
+  return ret;
 }
